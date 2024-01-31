@@ -22,7 +22,11 @@ tasks =["createDBConnectionPoolObject","getOwnerInfoFromPoolObject","checkHolida
 # cursor = conn.cursor()
 head = {"Authorization":"Basic YWRtaW46YWlyZmxvd0AxMjM="}
 
-@app.route('/', methods=['GET'])
+@app.route('/')
+def serviceStatus():
+   return "Starting the service"
+
+@app.route('/NodeHealthCheck', methods=['GET'])
 def NodeHealthCheck():
    return "Service is UP"
 
