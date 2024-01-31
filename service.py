@@ -1,4 +1,4 @@
-import os,requests,json ,configparser, mysql.connector
+import os,requests,json 
 from flask import Flask, request, jsonify
 from BatchCreation import createDefaultArgs,createMailBodyStr,createImportStmnt,createNewDag,creatingTask, createConnObjectStr, getOwnerInfoStr, createListOfRecipitents, createEmailFunc,getAuthTokenStr,getMicroserviceInvocation,createTaskFlow, creatingSeqBatch, creatingMicroserviceToInvoke
 from Roles import createViewerRole, createAdminRole, createExecutorRole
@@ -6,23 +6,23 @@ from solartisMicroservices import updateScheduleInterval
 
 app = Flask(__name__)
 
-file_path='config.ini'
-config = configparser.ConfigParser()
-config.read(file_path)
+# file_path='config.ini'
+# config = configparser.ConfigParser()
+# config.read(file_path)
 
 tasks =["createDBConnectionPoolObject","getOwnerInfoFromPoolObject","checkHoliday","holidayEmail","getAuthToken","onSuccessEmail"]
 
-conn = mysql.connector.connect(
-    host=config.get('BatchInfoDB', 'hostname'),
-    user=config.get('BatchInfoDB', 'username'),
-    password=config.get('BatchInfoDB', 'password'),
-    database=config.get('BatchInfoDB', 'database')
-)
+# conn = mysql.connector.connect(
+#     host=config.get('BatchInfoDB', 'hostname'),
+#     user=config.get('BatchInfoDB', 'username'),
+#     password=config.get('BatchInfoDB', 'password'),
+#     database=config.get('BatchInfoDB', 'database')
+# )
 
-cursor = conn.cursor()
+# cursor = conn.cursor()
 head = {"Authorization":"Basic YWRtaW46YWlyZmxvd0AxMjM="}
 
-@app.route('/NodeHealthCheck', methods=['GET'])
+@app.route('/', methods=['GET'])
 def NodeHealthCheck():
    return "Service is UP"
 
@@ -40,39 +40,39 @@ def createUser():
         return jsonify({'error': str(e)})
 
 
-@app.route('/createRole', methods=['POST'])
-def createRoleAdmin():
-   batchList = []
-   url = "http://10.200.18.62:8080/api/v1/roles"
-   request_body = request.get_json()
-   role = request_body["role"]
-   roleName = request_body["name"]
-   owner_id = request_body["owner_id"]
+# @app.route('/createRole', methods=['POST'])
+# def createRoleAdmin():
+#    batchList = []
+#    url = "http://10.200.18.62:8080/api/v1/roles"
+#    request_body = request.get_json()
+#    role = request_body["role"]
+#    roleName = request_body["name"]
+#    owner_id = request_body["owner_id"]
 
-   query = f"""select batch_id from batch_info where owner_id='{owner_id}'"""
-   cursor.execute(query)
-   batchs = cursor.fetchall()
+#    # query = f"""select batch_id from batch_info where owner_id='{owner_id}'"""
+#    # cursor.execute(query)
+#    # batchs = cursor.fetchall()
    
-   for batch in batchs :
-      batchList.append(batch[0])
+#    for batch in batchs :
+#       batchList.append(batch[0])
 
-   if(role.lower() == "admin"):
-      req_body = createAdminRole(roleName, batchList)
-   elif(role.lower() == "executor"):
-      req_body = createExecutorRole(roleName, batchList)
-   elif(role.lower() == "viewer"):
-      req_body = createViewerRole(roleName, batchList)
+#    if(role.lower() == "admin"):
+#       req_body = createAdminRole(roleName, batchList)
+#    elif(role.lower() == "executor"):
+#       req_body = createExecutorRole(roleName, batchList)
+#    elif(role.lower() == "viewer"):
+#       req_body = createViewerRole(roleName, batchList)
       
-   role_details = json.loads(req_body)
-   try:
-      response = requests.post(url,json=role_details,headers=head)
-      if response.status_code // 100 == 2:
-          return jsonify(f'To {roleName} {role} role is created successfully \nResponse: {response.text}')
-      else:
-          return jsonify(f'Error in creating Admin Role.\n Status Code: {response.status_code}, Response: {response.text}')
+#    role_details = json.loads(req_body)
+#    try:
+#       response = requests.post(url,json=role_details,headers=head)
+#       if response.status_code // 100 == 2:
+#           return jsonify(f'To {roleName} {role} role is created successfully \nResponse: {response.text}')
+#       else:
+#           return jsonify(f'Error in creating Admin Role.\n Status Code: {response.status_code}, Response: {response.text}')
       
-   except Exception as e:
-        return jsonify({'error': str(e)})
+#    except Exception as e:
+#         return jsonify({'error': str(e)})
 
    
 
@@ -117,8 +117,8 @@ def createBatch():
             for item_ in taskList:
                file.write(str(item_) + '\n') 
             file.write(createTaskFlow(seqBatchList))
-        cursor.execute('INSERT INTO batch_info (owner_id,batch_id) VALUES (%s, %s)', (def_args["owner"],dag_info["batch_id"]))
-        conn.commit()
+      #   cursor.execute('INSERT INTO batch_info (owner_id,batch_id) VALUES (%s, %s)', (def_args["owner"],dag_info["batch_id"]))
+      #   conn.commit()
         response = {'status': 'success', 'message': f"Dag '{full_path}' created successfully.","owner":def_args.get('owner',' ')}
         print(str_dag)
         return jsonify(response)
